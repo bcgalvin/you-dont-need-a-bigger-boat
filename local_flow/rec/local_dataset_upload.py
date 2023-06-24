@@ -19,11 +19,11 @@ def upload_file_as_parquet(file_path: str,
                            target_s3_folder: str,
                            chunksize: Optional[int] = None,
                            partition_cols: Optional[List[str]] = None) -> None:
-    print('Begin reading file {}'.format(file_path))
+    print(f'Begin reading file {file_path}')
 
     s3_file_name = os.path.join(
         target_s3_folder, get_filename(file_path) + '.parquet')
-    if not chunksize is None:
+    if chunksize is not None:
         df_content = next(pd.read_csv(file_path, chunksize=chunksize))
     else:
         df_content = pd.read_csv(file_path)
@@ -32,7 +32,7 @@ def upload_file_as_parquet(file_path: str,
     df_content.to_parquet(path=s3_file_name, engine='pyarrow',
                           partition_cols=partition_cols)
 
-    print('Parquet files for {} stored at : {}'.format(file_path, s3_file_name))
+    print(f'Parquet files for {file_path} stored at : {s3_file_name}')
 
 
 if __name__ == '__main__':

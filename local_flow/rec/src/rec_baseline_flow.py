@@ -27,9 +27,9 @@ class RecFlow(FlowSpec):
         """
         Start Step for a Flow;
         """
-        print("flow name: %s" % current.flow_name)
-        print("run id: %s" % current.run_id)
-        print("username: %s" % current.username)
+        print(f"flow name: {current.flow_name}")
+        print(f"run id: {current.run_id}")
+        print(f"username: {current.username}")
 
         # Call next step in DAG with self.next(...)
         self.next(self.process_raw_data)
@@ -70,10 +70,10 @@ class RecFlow(FlowSpec):
         # save as parquet onto S3
         with S3(run=self) as s3:
             # save s3 paths in dict
-            self.data_paths = dict()
+            self.data_paths = {}
             s3_root = s3._s3root
             for name, data in processed_data.items():
-                data_path = os.path.join(s3_root, name + '.parquet')
+                data_path = os.path.join(s3_root, f'{name}.parquet')
                 data.to_parquet(path=data_path, engine='pyarrow')
                 self.data_paths[name] = data_path
 
@@ -120,7 +120,7 @@ class RecFlow(FlowSpec):
 
         # read just a single configuration
         CONFIG_FILE = os.getenv('MODEL_CONFIG_PATH').format(os.getenv('MODEL_CHOICE'))
-        print("CONFIG FILE : {}".format(CONFIG_FILE))
+        print(f"CONFIG FILE : {CONFIG_FILE}")
         self.model_choice = os.getenv('MODEL_CHOICE')
         self.config = return_json_file_content(CONFIG_FILE)
         self.next(self.train_model)
@@ -193,12 +193,14 @@ class RecFlow(FlowSpec):
         import json
         from deploy_model import deploy_tf_model
 
-        inference_code_path = "src/{}_sm_inference/inference.py".format(os.getenv('MODEL_CHOICE').lower())
+        inference_code_path = (
+            f"src/{os.getenv('MODEL_CHOICE').lower()}_sm_inference/inference.py"
+        )
 
         # deploy onto SM
         with S3(run=self) as s3:
             self.model_s3_path, \
-            self.endpoint_name = deploy_tf_model(model_json=self.model['model'],
+                self.endpoint_name = deploy_tf_model(model_json=self.model['model'],
                                                  model_weights=self.model['weights'],
                                                  custom_objects=self.model['custom_objects'],
                                                  sagemaker_entry_point_path=inference_code_path,
@@ -206,7 +208,9 @@ class RecFlow(FlowSpec):
                                                  s3_obj=s3,
                                                  run_id=current.run_id)
 
-        self.token_mapping_fname = 'serverless/token-mapping-{}.json'.format(self.endpoint_name)
+        self.token_mapping_fname = (
+            f'serverless/token-mapping-{self.endpoint_name}.json'
+        )
 
         # save mappings to serverless folder
         with open(self.token_mapping_fname, 'w') as f:

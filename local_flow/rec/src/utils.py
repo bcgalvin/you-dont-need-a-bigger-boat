@@ -85,16 +85,18 @@ class ExperimentTracker:
             WANDB_API_KEY is not set. Please set it in your environment.
             Docs: https://docs.wandb.ai/guides/track/advanced/environment-variables#multiple-wandb-users-on-shared-machines
             '''
-            
+
             # Initialize wandb
             # init API reference: https://docs.wandb.ai/ref/python/init
-            self.wandb_run = wandb.init(entity = os.getenv('WANDB_ENTITY'),
-                   project="recommendation-{}".format(self.model_choice),
-                   id=self.current_run_id,
-                   config=self.config,
-                   resume='allow',
-                   reinit=True)
-                
+            self.wandb_run = wandb.init(
+                entity=os.getenv('WANDB_ENTITY'),
+                project=f"recommendation-{self.model_choice}",
+                id=self.current_run_id,
+                config=self.config,
+                resume='allow',
+                reinit=True,
+            )
+
             return WandbCallback()
         elif self.name == 'neptune':
 
@@ -107,9 +109,7 @@ class ExperimentTracker:
 
             # Initialize neptune
             # init API reference: https://docs.neptune.ai/api-reference/neptune#.init
-            self.neptune_run = neptune.init(
-                name="recommendation-{}".format(self.model_choice)
-            )
+            self.neptune_run = neptune.init(name=f"recommendation-{self.model_choice}")
 
             # Log the Metaflow run ID and hyperparameters
             self.neptune_run["metaflow_run_id"] = self.current_run_id
@@ -117,7 +117,7 @@ class ExperimentTracker:
 
             # Log data version
             self.neptune_run["artifacts/dataset"].track_files(self.s3_path)
-            
+
 
             return NeptuneCallback(run=self.neptune_run)
         else:

@@ -54,7 +54,7 @@ def knn_inference_model(vector_dims: int,
     # reserve idx=0 for masking
     embedding_weights = np.vstack((np.zeros((1, vector_dims)),
                                    embedding_matrix))
-    print('Embedding Matrix Shape : {}'.format(embedding_matrix.shape))
+    print(f'Embedding Matrix Shape : {embedding_matrix.shape}')
 
     # initialize embedding layer with pretrained vectors
     word_embeddings = layers.Embedding(input_dim=vocab_size + 1,
@@ -72,7 +72,7 @@ def knn_inference_model(vector_dims: int,
     # get query vector as average
     query_vector = layers.GlobalAveragePooling1D()(query_vectors)
     # get all vectors
-    all_vectors = word_embeddings(np.array([[idx for idx in range(vocab_size)]]))
+    all_vectors = word_embeddings(np.array([list(range(vocab_size))]))
     # compute cosine distance/dot product using batch_dot (auto broadcasting)
     cosine_distance = batch_dot(tf.expand_dims(query_vector, axis=1), all_vectors, axes=2)
     # remove extra dimension
@@ -176,7 +176,7 @@ def train_prod2vec_model(sessions: dict,
                                    epochs=iterations,
                                    ns_exponent=ns_exponent)
 
-    print("# products in the space: {}".format(len(model.wv.index_to_key)))
+    print(f"# products in the space: {len(model.wv.index_to_key)}")
     # reserve idx 0 for masking
     token2id = {token: idx+1 for token, idx in model.wv.key_to_index.items()}
     id2token = {idx: token for token, idx in token2id.items()}
@@ -200,7 +200,7 @@ def train_prod2vec_model(sessions: dict,
             wandb.log({'HR@10': validation_hr})
         else:
             tracker._metric_logger["HR@10"] = validation_hr
-    
+
 
     return {
                 'model': knn_model.to_json(),
@@ -218,7 +218,7 @@ def hit_rate_at_k(rec_model,
                   id2token: dict,
                   sessions: list,
                   k: int = 10):
-    print('Evaluating HR@{}'.format(k))
+    print(f'Evaluating HR@{k}')
     all_skus_idx = list(id2token.keys())
     test_queries = sessions
     cnt_preds = 0
@@ -227,8 +227,8 @@ def hit_rate_at_k(rec_model,
     for idx, t in enumerate(test_queries):
         # debug
         if idx % 10000 == 0:
-            print('\nProcessed {}/{} test queries'.format(idx, len(test_queries)))
-            print('Running HR@{} is {}'.format(k, hits/(idx+1)))
+            print(f'\nProcessed {idx}/{len(test_queries)} test queries')
+            print(f'Running HR@{k} is {hits / (idx + 1)}')
 
         # if unknown product, will never hit
         if t[-1] not in token2id:
@@ -244,10 +244,7 @@ def hit_rate_at_k(rec_model,
         # this is our default predictions, which defaults to a random SKU
         next_skus = sample(all_skus_idx, k=k)
         target = t_idx[-1]
-        _products_in_session = t_idx[:-1]
-
-        # if there exists products in session
-        if _products_in_session:
+        if _products_in_session := t_idx[:-1]:
             # if mask token exists, add to end of seq
             if 'mask' in token2id:
                 _products_in_session_padded = _products_in_session[-19:] + [token2id['mask']] + \
@@ -266,8 +263,10 @@ def hit_rate_at_k(rec_model,
             hits += 1
 
     # print out some "coverage"
-    print("Predictions made in {} out of {} total test cases".format(cnt_preds, len(test_queries)))
+    print(
+        f"Predictions made in {cnt_preds} out of {len(test_queries)} total test cases"
+    )
     # check hit rate as metric
-    print("HR@{} : {}".format(k, hits/len(test_queries)))
+    print(f"HR@{k} : {hits / len(test_queries)}")
 
     return hits/len(test_queries)

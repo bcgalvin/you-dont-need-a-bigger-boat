@@ -27,9 +27,9 @@ class CartFlow(FlowSpec):
         """
         Start Step for a Flow;
         """
-        print("flow name: %s" % current.flow_name)
-        print("run id: %s" % current.run_id)
-        print("username: %s" % current.username)
+        print(f"flow name: {current.flow_name}")
+        print(f"run id: {current.run_id}")
+        print(f"username: {current.username}")
 
         # Call next step in DAG with self.next(...)
         self.next(self.process_raw_data)
@@ -71,10 +71,10 @@ class CartFlow(FlowSpec):
         # save as parquet onto S3
         with S3(run=self) as s3:
             # save s3 paths in dict
-            self.data_paths = dict()
+            self.data_paths = {}
             s3_root = s3._s3root
             for name, data in processed_data.items():
-                data_path = os.path.join(s3_root, name + '.parquet')
+                data_path = os.path.join(s3_root, f'{name}.parquet')
                 data.to_parquet(path=data_path, engine='pyarrow')
                 self.data_paths[name] = data_path
 
@@ -184,7 +184,7 @@ class CartFlow(FlowSpec):
             with S3(run=self) as s3:
                 url = s3.put(local_tar_name, data)
                 # print it out for debug purposes
-                print("Model saved at: {}".format(url))
+                print(f"Model saved at: {url}")
                 # save this path for downstream reference!
                 self.model_s3_path = url
                 # remove local compressed model

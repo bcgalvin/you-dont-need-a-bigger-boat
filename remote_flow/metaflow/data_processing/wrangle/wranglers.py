@@ -40,18 +40,20 @@ def search_wrangler(row_dict):
         'query_string': qs
     }
     if isinstance(skus, list) and len(skus) > 0:
-        results = []
-        for i, product in enumerate(skus):
-            results.append({
+        return [
+            {
                 **template,
-                'raw_search_event': str({
-                    'product_sku_hash': product.strip("' "),
-                    'rank': str(i + 1),
-                    'query': qs,
-                    'query_vector': row_dict['query_vector']
-                })
-            })
-        return results
+                'raw_search_event': str(
+                    {
+                        'product_sku_hash': product.strip("' "),
+                        'rank': str(i + 1),
+                        'query': qs,
+                        'query_vector': row_dict['query_vector'],
+                    }
+                ),
+            }
+            for i, product in enumerate(skus)
+        ]
     return [{
         **template,
         'raw_search_event': str({
@@ -86,27 +88,27 @@ def sku_wrangler(row_dict):
 def _parse_string_to_float_array(string):
     if not string:
         return []
-    parsed_string = string.strip('[] ')
-    if not parsed_string:
+    if parsed_string := string.strip('[] '):
+        return [float(x) if x.strip() else 'NaN' for x in parsed_string.split(",")]
+    else:
         return []
-    return [float(x) if x.strip() else 'NaN' for x in parsed_string.split(",")]
 
 
 def _parse_string_to_string_array(string):
     if not string:
         return []
-    parsed_string = string.strip('[] ')
-    if not parsed_string:
+    if parsed_string := string.strip('[] '):
+        return [x.strip() for x in parsed_string.split(",")]
+    else:
         return []
-    return [x.strip() for x in parsed_string.split(",")]
 
 
 def _parse_string_to_np_array(string):
     if not string:
         return np.array([])
-    parsed_string = string.strip('[] ')
-    if not parsed_string:
+    if parsed_string := string.strip('[] '):
+        return np.array([float(x) if x.strip() else np.NaN for x in parsed_string.split(",")], dtype=float)
+    else:
         return np.array([])
-    return np.array([float(x) if x.strip() else np.NaN for x in parsed_string.split(",")], dtype=float)
 
 

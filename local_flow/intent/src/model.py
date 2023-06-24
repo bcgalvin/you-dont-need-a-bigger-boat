@@ -74,11 +74,7 @@ def train_lstm_model(x, y,
                                        restore_best_weights=True)
 
     # Include callback for experiment tracking
-    if tracker_callback is not None:
-        callbacks = [es, tracker_callback]
-    else:
-        callbacks = [es]
-
+    callbacks = [es, tracker_callback] if tracker_callback is not None else [es]
     model.compile(optimizer=opt,
                   loss=loss,
                   metrics=['accuracy'])
@@ -118,14 +114,14 @@ def make_predictions(model, model_weights, test_file: str):
         actions = []
         for e in session:
             # NB : we are disregarding search actions here
-            if e['product_action'] == None and e['event_type'] == 'pageview':
+            if e['product_action'] is None and e['event_type'] == 'pageview':
                 actions.append('view')
             elif e['product_action'] != None:
                 actions.append(e['product_action'])
         X_test.append(actions)
 
     # Convert to index, pad & one-hot
-    max_len = max([len(_) for _ in X_test])
+    max_len = max(len(_) for _ in X_test)
     X_test = [session_indexed(_) for _ in X_test]
     X_test = pad_sequences(X_test, padding="post", value=7, maxlen=max_len)
     X_test = tf.one_hot(X_test, depth=7)

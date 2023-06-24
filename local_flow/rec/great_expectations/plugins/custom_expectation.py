@@ -75,20 +75,14 @@ class ExpectAverageSessionLengthToBeBetween(ColumnExpectation):
 
         # Checking if mean lies between thresholds
         if min_value is not None:
-           if strict_min:
-               above_min = avg_counts > min_value
-           else:
-               above_min = avg_counts >= min_value
+            above_min = avg_counts > min_value if strict_min else avg_counts >= min_value
         else:
-           above_min = True
+            above_min = True
 
         if max_value is not None:
-           if strict_max:
-               below_max = avg_counts < max_value
-           else:
-               below_max = avg_counts <= max_value
+            below_max = avg_counts < max_value if strict_max else avg_counts <= max_value
         else:
-           below_max = True
+            below_max = True
 
         success = above_min and below_max
 

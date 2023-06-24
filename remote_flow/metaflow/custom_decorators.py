@@ -15,7 +15,15 @@ def pip(libraries):
                 for library, version in libraries.items():
                     print("Pip Install:", library, version)
                     if version != "":
-                        subprocess.run([sys.executable, "-m", "pip", "install", library + "==" + version])
+                        subprocess.run(
+                            [
+                                sys.executable,
+                                "-m",
+                                "pip",
+                                "install",
+                                f"{library}=={version}",
+                            ]
+                        )
                     else:
                         subprocess.run([sys.executable, "-m", "pip", "install", library])
 
@@ -28,7 +36,6 @@ def pip(libraries):
 
 def enable_decorator(dec, flag):
     def decorator(func):
-        if flag:
-            return dec(func)
-        return func
+        return dec(func) if flag else func
+
     return decorator

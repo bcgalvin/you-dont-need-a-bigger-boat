@@ -103,7 +103,4 @@ def make_predictions(predictor):
                                         off_value=0,
                                         depth=7).numpy()}
 
-    # make predictions
-    preds = predictor.predict(test_inp)
-
-    return preds
+    return predictor.predict(test_inp)

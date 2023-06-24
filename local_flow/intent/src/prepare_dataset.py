@@ -54,9 +54,9 @@ def read_sessions_from_training_file(training_file: str, K: int = None):
         current_session_id = _session_id_hash
 
     # print how many sessions we have...
-    print("# total sessions: {}".format(len(user_sessions)))
+    print(f"# total sessions: {len(user_sessions)}")
     # print first one to check
-    print("First session is: {}".format(user_sessions[0]))
+    print(f"First session is: {user_sessions[0]}")
 
     return user_sessions
 
@@ -96,9 +96,8 @@ def prepare_training_data(sessions: list):
             # remove actual purchase from list
             p_session.pop(first_purchase)
             purchase_sessions.append(p_session)
-            assert not any(e == 'purchase' for e in p_session)
+            assert all(e != 'purchase' for e in p_session)
 
-        # add action but no purchase
         elif 'add' in s and 'purchase' not in s:
             abandon_sessions.append(s)
 

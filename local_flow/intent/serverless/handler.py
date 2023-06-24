@@ -72,9 +72,9 @@ def predict(event: Dict[str, Any],
         'empty': [0, 0, 0, 0, 0, 0, 0]
     }
 
-    print("Received event: " + json.dumps(event))
+    print(f"Received event: {json.dumps(event)}")
     params = event.get('queryStringParameters', {})
-    response = dict()
+    response = {}
     start = time.time()
     session_str = params.get('session', '')
     session = session_str.split(',') if session_str != '' else []
@@ -83,16 +83,14 @@ def predict(event: Dict[str, Any],
 
     session = ['start'] + session + ['end']
 
-    session_onehot = [
-        action_map[_] if _ in action_map else action_map['empty']
-        for _ in session
-    ]
+    session_onehot = [action_map.get(_, action_map['empty']) for _ in session]
     # input is array of array, even if we just ask for 1 prediction here
     input_payload = {'instances': [session_onehot]}
-    result = get_response_from_sagemaker(model_input=json.dumps(input_payload),
-                                         endpoint_name=SAGEMAKER_ENDPOINT_NAME,
-                                         content_type='application/json')
-    if result:
+    if result := get_response_from_sagemaker(
+        model_input=json.dumps(input_payload),
+        endpoint_name=SAGEMAKER_ENDPOINT_NAME,
+        content_type='application/json',
+    ):
         # print for debugging in AWS Cloudwatch
         print(result)
         # get the first item in the prediction array, as it is a 1-1 prediction

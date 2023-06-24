@@ -81,16 +81,17 @@ def predict(event, context):
     :param context: standard AWS lambda context param - not use in this application
     :return:
     """
-    print("Received event: " + json.dumps(event))
+    print(f"Received event: {json.dumps(event)}")
     params = event['queryStringParameters']
-    response = dict()
+    response = {}
     start = time.time()
 
     input_payload = {'instances': [encode_input(params.get('x', 'empty'))]}  # input is array of array, even if we just ask for 1 prediction here
-    result = get_response_from_sagemaker(json.dumps(input_payload),
-                                         SAGEMAKER_ENDPOINT_NAME,
-                                         content_type='application/json')
-    if result:
+    if result := get_response_from_sagemaker(
+        json.dumps(input_payload),
+        SAGEMAKER_ENDPOINT_NAME,
+        content_type='application/json',
+    ):
         # print for debugging in AWS Cloudwatch
         print(result)
         response = result['predictions']

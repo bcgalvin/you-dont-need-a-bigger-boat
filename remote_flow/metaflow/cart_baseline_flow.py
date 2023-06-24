@@ -46,9 +46,9 @@ class CartFlow(FlowSpec):
         """
         Start Step for a Flow;
         """
-        print("flow name: %s" % current.flow_name)
-        print("run id: %s" % current.run_id)
-        print("username: %s" % current.username)
+        print(f"flow name: {current.flow_name}")
+        print(f"run id: {current.run_id}")
+        print(f"username: {current.username}")
 
         # Call next step in DAG with self.next(...)
         self.next(self.prepare_dataset)
@@ -81,13 +81,11 @@ class CartFlow(FlowSpec):
     # wrap batch in a switch to allow easy local testing
     @enable_decorator(batch(gpu=1, cpu=8, image=os.getenv('BASE_IMAGE')),
                      flag=int(os.getenv('EN_BATCH')))
-    # @ environment decorator used to pass environment variables to Batch instance
     @environment(vars={'WANDB_API_KEY': os.getenv('WANDB_API_KEY'),
                        'WANDB_PROJECT' : os.getenv('WANDB_PROJECT'),
                        'WANDB_ENTITY' : os.getenv('WANDB_ENTITY'),
                        'BASE_IMAGE': os.getenv('BASE_IMAGE'),
                        'EN_BATCH': os.getenv('EN_BATCH')})
-    # @ custom pip decorator for pip installation on Batch instance
     @pip(libraries={'wandb': '0.10.30'})
     @step
     def train_model(self):
@@ -120,11 +118,13 @@ class CartFlow(FlowSpec):
                                                           batch_size=self.config['BATCH_SIZE'],
                                                           lr=self.config['LEARNING_RATE'])
 
-        model_name = "metaflow-intent-prediction-remote-model-{}/1-{}".format(self.config['LEARNING_RATE'], time.time())
-        local_tar_name = 'model-{}.tar.gz'.format(self.config['LEARNING_RATE'])
+        model_name = f"metaflow-intent-prediction-remote-model-{self.config['LEARNING_RATE']}/1-{time.time()}"
+        local_tar_name = f"model-{self.config['LEARNING_RATE']}.tar.gz"
         x_model.save(filepath=model_name)
-        max_len = max(len(_) for _ in self.dataset['X'][0:1000])  # using a limited amount of data so training is faster and cost less resources.
-        X_train = pad_sequences(self.dataset['X'][0:1000], padding="post", value=7, maxlen=max_len)
+        max_len = max(len(_) for _ in self.dataset['X'][:1000])
+        X_train = pad_sequences(
+            self.dataset['X'][:1000], padding="post", value=7, maxlen=max_len
+        )
         self.X = tf.one_hot(X_train, depth=7)
         self.y = x_model.predict(self.X, batch_size=self.config['BATCH_SIZE'])
         # zip keras folder to a single tar file
@@ -142,7 +142,7 @@ class CartFlow(FlowSpec):
             with S3(run=self) as s3:
                 url = s3.put(local_tar_name, data)
                 # print it out for debug purposes
-                print("Model saved at: {}".format(url))
+                print(f"Model saved at: {url}")
                 # save this path for downstream reference!
                 self.s3_path = url
 
@@ -178,7 +178,7 @@ class CartFlow(FlowSpec):
         # generate a signature for the endpoint, using learning rate and timestamp as a convention
         self.endpoint_name = os.getenv('SAGEMAKER_ENDPOINT_NAME', 'metaflow-intent-remote-endpoint')
         # print out the name, so that we can use it when deploying our lambda
-        print("\n\n================\nEndpoint name is: {}\n\n".format(self.endpoint_name))
+        print(f"\n\n================\nEndpoint name is: {self.endpoint_name}\n\n")
         model = TensorFlowModel(
             model_data=self.s3_path,
             image_uri=self.DOCKER_IMAGE_URI,

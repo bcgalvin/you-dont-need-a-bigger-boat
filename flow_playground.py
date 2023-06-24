@@ -13,9 +13,9 @@ class DummyFlow(FlowSpec):
         """
         Create a random dataset.
         """
-        print("flow name: %s" % current.flow_name)
-        print("run id: %s" % current.run_id)
-        print("username: %s" % current.username)
+        print(f"flow name: {current.flow_name}")
+        print(f"run id: {current.run_id}")
+        print(f"username: {current.username}")
         import random
         self.dataset = [[random.uniform(0, 1.0), random.uniform(0.2, 0.9)] for _ in range(100000)]
         self.next(self.prepare_dataset)
@@ -29,7 +29,9 @@ class DummyFlow(FlowSpec):
         train_size = int(len(d) * 0.8)
         self.train_dataset = [_ for idx, _ in enumerate(d) if idx <= train_size]
         self.test_dataset = [_ for idx, _ in enumerate(d) if idx > train_size]
-        print("Training size: {}, Test size: {}".format(len(self.train_dataset), len(self.test_dataset)))
+        print(
+            f"Training size: {len(self.train_dataset)}, Test size: {len(self.test_dataset)}"
+        )
         self.next(self.train_model)
 
     @batch(gpu=1, cpu=8, image='763104351884.dkr.ecr.us-east-1.amazonaws.com/tensorflow-training:2.3.1-gpu-py37-cu110-ubuntu18.04')
@@ -63,7 +65,7 @@ class DummyFlow(FlowSpec):
         # evaluate the model
         print("Now evaluating the model...")
         self.results = x_model.evaluate(x_test, y_test)
-        print("Eval results: {}".format(self.results))
+        print(f"Eval results: {self.results}")
         # finish the flow
         self.next(self.end)
 

@@ -31,17 +31,14 @@ dbt_task = DbtShellTask(
 
 # Define the MetaFlow task
 metaflow_task = ShellTask(
-    log_stderr=True,
-    return_all=True,
-    helper_script=f"cd ./",
-    name="MetaFlow",
+    log_stderr=True, return_all=True, helper_script="cd ./", name="MetaFlow"
 )
 
 # Define the Serverless Task
 serverless_task = ShellTask(
     log_stderr=True,
     return_all=True,
-    helper_script=f"cd ./serverless",
+    helper_script="cd ./serverless",
     name="Serverless",
 )
 

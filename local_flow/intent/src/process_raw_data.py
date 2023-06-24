@@ -44,7 +44,7 @@ def process_raw_data(search_train_path, browsing_train_path, sku_to_content_path
 
 
 def process_search_train(search_train_path):
-    print('Processing {}'.format(search_train_path))
+    print(f'Processing {search_train_path}')
     df = read_from_parquet(search_train_path)
     # peek at raw data
     print(df.dtypes)
@@ -54,7 +54,7 @@ def process_search_train(search_train_path):
 
 
 def process_browsing_train(browsing_train_path):
-    print('Processing {}'.format(browsing_train_path))
+    print(f'Processing {browsing_train_path}')
 
     # 30M seems to exceed some memory limit; take 1M rows for now
     df = read_from_parquet(browsing_train_path, limit=1000000)
@@ -81,7 +81,7 @@ def process_browsing_train(browsing_train_path):
 
 
 def process_sku_to_content(sku_to_content_path):
-    print('Processing {}'.format(sku_to_content_path))
+    print(f'Processing {sku_to_content_path}')
     df = read_from_parquet(sku_to_content_path)
 
     # peek at raw data

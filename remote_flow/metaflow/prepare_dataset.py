@@ -70,10 +70,9 @@ def prepare_training_data(sessions):
             # remove actual purchase from list
             p_session.pop(first_purchase)
             purchase_sessions.append(p_session)
-            assert not any(e == Actions.purchase for e in p_session)
+            assert all(e != Actions.purchase for e in p_session)
 
-        # add action but no purchase
-        elif Actions.add in s and not Actions.purchase in s:
+        elif Actions.add in s and Actions.purchase not in s:
             abandon_sessions.append(s)
 
     # convert sessions to index

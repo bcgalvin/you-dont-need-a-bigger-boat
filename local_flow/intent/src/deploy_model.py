@@ -21,8 +21,8 @@ def tf_model_to_tar(tf_model, run_id: int, ):
     :return:
     """
 
-    model_name = "intent-model-{}/1".format(run_id)
-    local_tar_name = 'model-{}.tar.gz'.format(run_id)
+    model_name = f"intent-model-{run_id}/1"
+    local_tar_name = f'model-{run_id}.tar.gz'
 
     # save model locally
     tf_model.save(filepath=model_name)
@@ -44,10 +44,10 @@ def deploy_model(model_s3_path: str):
     """
 
     # generate a signature for the endpoint using timestamp
-    endpoint_name = 'intent-{}-endpoint'.format(int(round(time.time() * 1000)))
+    endpoint_name = f'intent-{int(round(time.time() * 1000))}-endpoint'
 
     # print out the name, so that we can use it when deploying our lambda
-    print("\n\n================\nEndpoint name is: {}\n\n".format(endpoint_name))
+    print(f"\n\n================\nEndpoint name is: {endpoint_name}\n\n")
 
     # create sagemaker tf model
     model = TensorFlowModel(

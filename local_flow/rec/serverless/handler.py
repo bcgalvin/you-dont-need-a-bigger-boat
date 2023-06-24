@@ -8,7 +8,9 @@ import random
 # grab environment variables
 SAGEMAKER_ENDPOINT_NAME = os.getenv('SAGEMAKER_ENDPOINT_NAME')
 TOKEN_MAPPING_BASENAME = os.getenv('TOKEN_MAPPING_BASENAME','token-mapping')
-TOKEN_MAPPING_FNAME = "{}-{}.json".format(TOKEN_MAPPING_BASENAME, SAGEMAKER_ENDPOINT_NAME)
+TOKEN_MAPPING_FNAME = (
+    f"{TOKEN_MAPPING_BASENAME}-{SAGEMAKER_ENDPOINT_NAME}.json"
+)
 # print to AWS for debug!
 print(SAGEMAKER_ENDPOINT_NAME)
 print(TOKEN_MAPPING_FNAME)
@@ -81,9 +83,9 @@ def predict(event: Dict[str, Any],
     :return:
     """
 
-    print("Received event: " + json.dumps(event))
+    print(f"Received event: {json.dumps(event)}")
     params = event.get('queryStringParameters', {})
-    response = dict()
+    response = {}
     start = time.time()
     session_str = params.get('session', '')
     session = session_str.split(',') if session_str != '' else []

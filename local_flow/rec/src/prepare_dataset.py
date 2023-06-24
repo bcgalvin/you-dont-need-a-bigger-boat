@@ -16,8 +16,7 @@ def prepare_dataset(training_file: str, K: int = None):
     :param K: row limit
     :return: dictionary of training data X,y
     """
-    sessions = read_sessions_from_training_file(training_file, K)
-    return sessions
+    return read_sessions_from_training_file(training_file, K)
 
 
 def read_sessions_from_training_file(training_file: str, K: int = None):
@@ -58,9 +57,9 @@ def read_sessions_from_training_file(training_file: str, K: int = None):
         current_session_id = _session_id_hash
 
     # print how many sessions we have...
-    print("# total sessions: {}".format(len(user_sessions)))
+    print(f"# total sessions: {len(user_sessions)}")
     # print first one to check
-    print("First session is: {}".format(user_sessions[0]))
+    print(f"First session is: {user_sessions[0]}")
     print(user_sessions[0]['session_start_time'])
     print(user_sessions[10]['session_start_time'])
 
